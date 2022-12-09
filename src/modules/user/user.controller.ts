@@ -77,6 +77,7 @@ export class UserController {
   * I could have adjusted the csv headers but I assume that in a real 
   * situation we might not always have access to the csv so instead I 
   * changed the schema and DTO to properly account for the csv format.
+  * Would love to know a better way to handle this situation!
   */
   @Post('/seed-data')
   @ApiOperation({ summary: 'Load data from ./seed-data/users.csv into our mongo database' })
