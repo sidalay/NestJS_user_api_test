@@ -1,15 +1,15 @@
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Logger,
-  NotFoundException,
-  Param,
-  Patch,
-  Post,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Logger,
+    NotFoundException,
+    Param,
+    Patch,
+    Post
 } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CsvParser } from 'src/providers/csv-parser.provider';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -71,18 +71,37 @@ export class UserController {
     return user;
   }
 
+  /*
+  * The upper casing of 'N' in user properties firstName & lastName was 
+  * causing the csv header's firstname & lastname to not be accounted for.
+  * I could have adjusted the csv headers but I assume that in a real 
+  * situation we might not always have access to the csv so instead I 
+  * changed the schema and DTO to properly account for the csv format.
+  */
   @Post('/seed-data')
   @ApiOperation({ summary: 'Load data from ./seed-data/users.csv into our mongo database' })
-  async seedData(): Promise<boolean> {
-    const users = await CsvParser.parse('seed-data/users.csv');
-    let results = false;
+  async seedData() {
+    const users: CreateUserDto[] = await CsvParser.parse('seed-data/users.csv');
+    
+    for (let i = 0; i < users.length; ++i) {
+        await this.userService.createUser(users[i]);
+    }
+  }
 
-    /**
-     *
-     * @todo
-     * Loop through all the users and save into the database
-     */
-
-    return results;
+  @Get('/search/:firstname?/:lastname?/:username?')
+  @ApiOperation({ summary: 'Search a user by any combination of firstname, lastname, username' })
+  @ApiParam({ name: 'firstname', required: false})
+  @ApiParam({ name: 'lastname', required: false})
+  @ApiParam({ name: 'username', required: false})
+  async getByName(
+    @Param('firstname') firstName?: string, 
+    @Param('lastname') lastName?: string, 
+    @Param('username') username?: string): Promise<UserDto[]> 
+  {
+    const result = await this.userService.findByName(firstName, lastName, username);
+    if (result.length == 0) {
+        throw new NotFoundException('User not found');
+    }
+    return result;
   }
 }

@@ -9,10 +9,10 @@ export class UserDto extends User {
   createdAt: string;
 
   @ApiResponseProperty()
-  firstName: string;
+  firstname: string;
 
   @ApiResponseProperty()
-  lastName: string;
+  lastname: string;
 
   @ApiResponseProperty()
   password: string;
@@ -22,6 +22,9 @@ export class UserDto extends User {
 
   @ApiResponseProperty()
   username: string;
+
+  @ApiResponseProperty()
+  email: string;
 
   constructor(args?: Partial<UserDto>) {
     super();

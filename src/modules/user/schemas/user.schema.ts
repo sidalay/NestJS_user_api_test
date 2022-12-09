@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { PartialType } from '@nestjs/swagger';
 
 export type UserDoc = Document & User;
 
@@ -10,10 +11,10 @@ export class User {
   createdAt: string;
 
   @Prop({ index: true })
-  firstName: string;
+  firstname: string;
 
   @Prop({ index: true })
-  lastName: string;
+  lastname: string;
 
   @Prop()
   password: string;
@@ -23,6 +24,9 @@ export class User {
 
   @Prop({ unique: true, index: true })
   username: string;
+
+  @Prop({ unique: true })
+  email: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
